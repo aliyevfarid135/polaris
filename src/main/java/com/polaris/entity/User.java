@@ -38,10 +38,13 @@ public class User {
     private Set<String> roles = new HashSet<>();
 
     public void addRole(String role) {
-        roles.add(role);
+        if (this.roles == null) {
+            this.roles = new HashSet<>();
+        }
+        this.roles.add(role);
     }
 
     public void removeRole(String role) {
-        roles.remove(role);
+        this.roles.remove(role);
     }
 }

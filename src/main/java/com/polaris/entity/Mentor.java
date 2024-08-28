@@ -32,4 +32,8 @@ public class Mentor {
     private Integer experienceYears;
 
     private String about;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

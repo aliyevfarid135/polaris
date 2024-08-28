@@ -10,7 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface MentorRepository extends JpaRepository<Mentor, Integer> {
-    Boolean existsByEmail(String email);
-    Mentor findByEmail(String email);
     Optional<Mentor> findByUser(User user);
 }
