@@ -1,16 +1,14 @@
 package com.polaris.repository;
 
 
-import com.polaris.entity.Learner;
+import com.polaris.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface LearnerRepository extends JpaRepository<Learner, Integer> {
+public interface UserRepository extends JpaRepository<User, Integer> {
 
     Boolean existsByEmail(String email);
 
-    Learner findByEmail(String username);
+    User findByEmail(String username);
 }

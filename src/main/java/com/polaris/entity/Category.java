@@ -22,7 +22,7 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category")
-    private List<Learner> learners;
+    private List<User> users;
 
     @OneToMany(mappedBy = "category")
     private List<Mentor> mentors;

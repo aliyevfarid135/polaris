@@ -1,11 +1,11 @@
 package com.polaris.entity;
 
-import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -14,29 +14,22 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Mentor {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String firstName;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
-    private String lastName;
-
-    private String email;
-
-    private String password;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    public Category category;
-
-    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "mentor_skills",
+            joinColumns = @JoinColumn(name = "mentor_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;
 
-    public Mentor(String firstName, String lastName, String email, String encode) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = encode;
-    }
+    private Integer experienceYears;
+
+    private String about;
 }

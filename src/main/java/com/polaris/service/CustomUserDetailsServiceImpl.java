@@ -1,8 +1,8 @@
 package com.polaris.service;
 
-import com.polaris.entity.Learner;
 import com.polaris.entity.Mentor;
-import com.polaris.repository.LearnerRepository;
+import com.polaris.entity.User;
+import com.polaris.repository.UserRepository;
 import com.polaris.repository.MentorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private LearnerRepository learnerRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private MentorRepository mentorRepository;
@@ -29,21 +31,23 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("Attempting to find user with email: " + username);
 
-        Learner learner = learnerRepository.findByEmail(username);
-        Mentor mentor = mentorRepository.findByEmail(username);
+        // Find the user by email
+        User user = userRepository.findByEmail(username);
 
-        if (learner != null) {
-            System.out.println("Found learner: " + learner.getEmail());
-            return buildUserDetails(learner.getEmail(), learner.getPassword(), "ROLE_LEARNER");
-        } else if (mentor != null) {
-            System.out.println("Found mentor: " + mentor.getEmail());
-            return buildUserDetails(mentor.getEmail(), mentor.getPassword(), "ROLE_MENTOR");
+        // Check if the user is a mentor
+        Optional<Mentor> mentor = mentorRepository.findByUser(user);
+
+        if (user != null) {
+            // Determine the role based on whether the user is a mentor
+            String role = (mentor != null) ? "ROLE_MENTOR" : "ROLE_LEARNER";
+
+            System.out.println("Found user: " + user.getEmail() + " with role: " + role);
+            return buildUserDetails(user.getEmail(), user.getPassword(), role);
         } else {
             System.out.println("User not found: " + username);
             throw new UsernameNotFoundException("User not found.");
         }
     }
-
 
     private UserDetails buildUserDetails(String username, String password, String... authorities) {
         org.springframework.security.core.userdetails.User.UserBuilder builder =
@@ -55,6 +59,4 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
         return builder.build();
     }
-
-
 }
