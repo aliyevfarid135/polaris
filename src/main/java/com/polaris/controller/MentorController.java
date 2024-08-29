@@ -11,7 +11,11 @@ import com.polaris.repository.CategoryRepository;
 import com.polaris.repository.MentorRepository;
 import com.polaris.repository.SkillRepository;
 import com.polaris.repository.UserRepository;
+import com.polaris.service.MentorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +27,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/mentors")
+@RequiredArgsConstructor
 public class MentorController {
 
     @Autowired
@@ -39,6 +44,17 @@ public class MentorController {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+    private final MentorService mentorService;
+    @GetMapping("/{id}")
+    public ResponseEntity<Mentor> getMentorById(@PathVariable Integer id) {
+        Optional<Mentor> mentor = mentorService.getMentorById(id);
+        return mentor.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    @GetMapping
+    public Page<Mentor> getAllMentors(Pageable pageable) {
+        return mentorService.getAllMentors(pageable);
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> mentorSignup(@RequestBody MentorSignupRequestReal mentorSignupRequest) {
