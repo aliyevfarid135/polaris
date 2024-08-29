@@ -5,6 +5,7 @@ import com.polaris.entity.Mentor;
 import com.polaris.entity.Skill;
 import com.polaris.entity.User;
 import com.polaris.payload.request.MentorSignupRequest;
+import com.polaris.payload.request.MentorSignupRequestReal;
 import com.polaris.payload.response.MessageResponse;
 import com.polaris.repository.CategoryRepository;
 import com.polaris.repository.MentorRepository;
@@ -32,6 +33,56 @@ public class MentorController {
 
     @Autowired
     private SkillRepository skillRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> mentorSignup(@RequestBody MentorSignupRequestReal mentorSignupRequest) {
+        if (userRepository.existsByEmail(mentorSignupRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        Category category = categoryRepository.findById(mentorSignupRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Error: Category not found."));
+
+        User user = User.builder()
+                .firstName(mentorSignupRequest.getFirstName())
+                .lastName(mentorSignupRequest.getLastName())
+                .email(mentorSignupRequest.getEmail())
+                .password(passwordEncoder.encode(mentorSignupRequest.getPassword()))
+                .category(category)
+                .build();
+
+        user.addRole("ROLE_USER");
+        user.addRole("ROLE_MENTOR");
+        user.addRole("ROLE_LEARNER");
+
+        userRepository.save(user);
+
+        Mentor mentor = new Mentor();
+        mentor.setUser(user);
+        mentor.setExperienceYears(mentorSignupRequest.getExperienceYears());
+        mentor.setAbout(mentorSignupRequest.getAbout());
+
+        List<Skill> skills = new ArrayList<>();
+        for (String skillName : mentorSignupRequest.getSkills()) {
+            Skill skill = skillRepository.findByName(skillName)
+                    .orElse(new Skill(skillName));
+            skillRepository.save(skill);
+            skills.add(skill);
+        }
+
+        mentor.setSkills(skills);
+        mentorRepository.save(mentor);
+
+        return ResponseEntity.ok(new MessageResponse("Mentor registered successfully!"));
+    }
 
     @PostMapping("/become-a-mentor")
     public ResponseEntity<?> becomeAMentor(@RequestBody MentorSignupRequest mentorRequest, @AuthenticationPrincipal User user) {
