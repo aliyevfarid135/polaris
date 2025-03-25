@@ -6,7 +6,7 @@ Polaris is a mentor platform where users can sign up, log in, and apply to becom
 
 - **User Registration & Login**: Users can register and log in using their email and password.
 - **Mentor Signup**: Users can sign up as mentors by providing additional details such as experience, skills, and an "About" section.
-- **Role Management**: Users can have different roles like `USER`, `MENTOR`, allowing for different permissions and functionalities.
+- **Role Management**: Users can have different roles like `USER`, `MENTOR`, `LEARNER` allowing for different permissions and functionalities.
 - **Skill Management**: Mentors can specify their skills during signup, which are saved and associated with their profiles.
 - **Category Management**: Users are assigned to specific categories during signup.
 
